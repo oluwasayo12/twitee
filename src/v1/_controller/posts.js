@@ -15,7 +15,7 @@ module.exports = class postsController {
     getTwits = async (request, response, next) => {
         try {
 
-            let twits = await this.mainClass.dbSelect(`SELECT post_id as twit_id, name, post_data, date_posted FROM posts LEFT JOIN users ON post_user_id = id `)
+            let twits = await this.mainClass.dbSelect(`SELECT post_id as twit_id, post_user_id, name, post_data, date_posted FROM posts LEFT JOIN users ON post_user_id = id `)
             return response.status(HttpStatusCode.OK).json({
                 status: true, 
                 message: 'Twits', 
