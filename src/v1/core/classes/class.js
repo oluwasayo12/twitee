@@ -6,17 +6,13 @@ module.exports = class Functions {
      */
      dbConnect = () => {
         const mySql = require("mysql");
-        this.dbConnection = mySql.createConnection({
+        return this.dbConnection = mySql.createPool({
             host: process.env.MYSQL_URI,
             user: process.env.MYSQL_USER,
             password: process.env.MYSQL_PASSWORD,
             database: process.env.MYSQL_DATABASE,
             port: '3306',
         });
-        return this.dbConnection.connect((connectionError) => {
-            console.log(connectionError);
-            if (connectionError) new Error(connectionError);
-        })
     };
 
     /**
