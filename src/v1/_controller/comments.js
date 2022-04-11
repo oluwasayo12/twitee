@@ -2,6 +2,7 @@
 
 const {validationResult} = require('express-validator')
 const HttpStatusCode = require("../../../utils/statusCode");
+const moment = require('moment');
 
 module.exports = class postCommentsController {
 
@@ -18,15 +19,16 @@ module.exports = class postCommentsController {
         } 
         
         try {
-
+            let datePosted = moment().format('YYYY-MM-DD HH:mm:ss');
             let user = request.user
             let post_id = request.params.id
             let post_comment = request.body.comment
             let insertRecord = {
                 com_user_id: user, 
                 com_post_id: post_id, 
-                com_post_comment: post_comment
-            }
+                com_post_comment: post_comment,
+                date_commented: datePosted,
+            }   
             let dataInsert = await this.mainClass.dbInsert(`INSERT into comments SET ? `,insertRecord);
 
             if(dataInsert.data > 0){
