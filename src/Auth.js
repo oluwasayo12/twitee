@@ -52,6 +52,25 @@ const Auth = () => {
         setMessage(res.data.message);
         navigate("/posts");
       }
+    }).catch(error => {
+        let errorResponse = error.response.data
+        if(errorResponse.status === false && 'data' in errorResponse)
+        {
+          //check if error data is an array
+          if(Array.isArray(errorResponse.data)){
+            let errorData = errorResponse.data
+            for (let index = 0; index < errorData.length; index++) {
+              const errorMessage = errorData[index].msg;
+              // console.log(errorMessage)
+              setMessage(errorMessage);
+              
+            }
+          }
+        }
+        if(errorResponse.status === false && 'error' in errorResponse)
+        {
+          setMessage(errorResponse.error.error_message);
+        }
     });
   };
 
@@ -92,7 +111,7 @@ const Auth = () => {
         <button className="inp_but" onClick={HandleLogin}>
           Login
         </button>
-        <small style={{ color: "green" }}>{message}</small>
+        <small style={{ color: "red" }}>{message}</small>
       </div>
       <div
         style={{

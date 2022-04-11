@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Post = () => {
+  const navigate = useNavigate();
   const [twit, setTwit] = useState("");
   const [post, setPost] = useState([]);
   const [comment, setComment] = useState(false);
   const [commentPosts, setCommentPosts] = useState("");
+  const [comments, setComments] = useState("");
   let data = {
     twit: twit,
   };
@@ -24,6 +27,12 @@ const Post = () => {
   };
 
   useEffect(() => {
+
+    if(!localStorage.getItem("token"))
+    {
+      navigate("/");
+    }
+
     axios
       .get(`https://twiteeex.herokuapp.com/v1/posts`, {
         headers: {
@@ -33,7 +42,7 @@ const Post = () => {
       .then((res) => {
         setPost(res.data.data);
       });
-  }, [twit]);
+  }, [twit, navigate]);
 
   const RemovePost = (id) => {
     axios.delete(`https://twiteeex.herokuapp.com/v1/posts/${id}`, {
@@ -57,8 +66,21 @@ const Post = () => {
         },
       })
       .then((res) => {
-        console.log(res.data.data);
         setCommentPosts(res.data.data.comment);
+      });
+  };
+
+  const commentPostx = (id) => {
+    localStorage.setItem("id", id);
+    axios
+      .get(`https://twiteeex.herokuapp.com/v1/posts/comments/${id}`, {
+        headers: {
+          Authorization: `Bearer ${window.localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        console.log(res.data.data);
+        setComments(res.data.data);
       });
   };
 
@@ -75,6 +97,7 @@ const Post = () => {
       }
     );
     setComment(false);
+
   };
   return (
     <div
@@ -113,6 +136,7 @@ const Post = () => {
           overflowY: "scroll",
         }}
       >
+        
         <table>
           <thead>
             <tr>
@@ -143,12 +167,18 @@ const Post = () => {
                     <button onClick={() => commentPost(item.twit_id)}>
                       Comment
                     </button>
+                    <button onClick={() => commentPostx(item.twit_id)}>
+                      View Comments
+                    </button>
                   </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+        <br />
+        <br />
+        <p>Comments</p>
 
         {comment === true ? (
           <div
@@ -172,9 +202,45 @@ const Post = () => {
               Comment
             </button>
           </div>
-        ) : (
-          ""
-        )}
+        ) : 
+        ( Array.isArray(comments))? 
+        <table>
+        <thead>
+          <tr>
+            <th>Nos</th>
+            <th>Comment</th>
+            <th>Date Commented</th>
+          </tr>
+        </thead>
+        <tbody>
+          {comments.map((item, i) => {
+          return (
+            <tr key={i}>
+              <td>{i + 1}</td>
+              <td>{item.comment}</td>
+              <td>{item.date_commented}</td>
+            </tr>
+          );
+          })}
+        </tbody>
+      </table>
+        : 
+        <table>
+        <thead>
+          <tr>
+            <th>Nos</th>
+            <th>Comment</th>
+            <th>Date Commented</th>
+          </tr>
+        </thead>
+        <tbody>
+          <td>1</td>
+          <td>{comments.comment}</td>
+          <td>{comments.date_commented}</td>
+        </tbody>
+      </table>
+
+        }
       </div>
     </div>
   );
